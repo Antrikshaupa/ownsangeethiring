@@ -9,24 +9,27 @@ export default defineConfig(({ mode }) => {
     
     server: {
       port: 5173,
-      proxy: isDevelopment ? {
-        '/api': {
-          target: process.env.VITE_API_URL || 'http://localhost:5000',
-          changeOrigin: true,
-        },
-      } : undefined,
+      proxy: isDevelopment
+        ? {
+            '/api': {
+              target: process.env.VITE_API_URL || 'http://localhost:5000',
+              changeOrigin: true,
+            },
+          }
+        : undefined,
     },
     
     build: {
       outDir: 'dist',
       sourcemap: isDevelopment,
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: !isDevelopment,
-          drop_debugger: !isDevelopment,
-        },
-      },
+      // use default esbuild minifier instead of terser
+      minify: isDevelopment ? false : 'esbuild',
+      // replace terserOptions with esbuild drop
+      esbuild: !isDevelopment
+        ? {
+            drop: ['console', 'debugger'],
+          }
+        : undefined,
       rollupOptions: {
         output: {
           manualChunks: {
